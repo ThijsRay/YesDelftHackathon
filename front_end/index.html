@@ -2,6 +2,7 @@
 <html>
 <head>
     <script type="text/javascript" src="vis/vis.min.js"></script>
+    <script type="text/javascript" src = "data/result.js"></script>
     <link href="vis/vis.min.css" rel="stylesheet" type="text/css" />
 
     <style type="text/css">
@@ -23,6 +24,7 @@
     function parseData(data) {
       var map = new Map();
       for (var key in data) {
+        console.log(key);
         if (!map.has(key)) {
           map.set(key, 0);
         }
@@ -33,16 +35,15 @@
           if (!map.has(person.name)) {
             map.set(person.name, 0);
           }
-          addWeight(map, key, person.name, person.dates.length);
+          addWeight(map, key, person, mails.length);
           edges.add({
             from: key,
-            to: person.name,
-            value: person.dates.length
+            to: person,
+            value: mails.length
           });
         }
       }
       map.forEach(createNode);
-      console.log(nodes);
     }
 
     function createNode(value, key, map) {
@@ -71,7 +72,7 @@
       ]
     }
 
-    parseData(json);
+    parseData(result);
 
     // for (var k in json) {
     //   console.log(k);
@@ -105,6 +106,7 @@
       },
       physics: {
         barnesHut: {
+          avoidOverlap: 0.1,
           springLength:500,
           springConstant: 0.02
         }
