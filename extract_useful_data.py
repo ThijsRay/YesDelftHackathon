@@ -88,11 +88,12 @@ def parse_objects():
                     person.add_sent_mail(correspondence[0], correspondence[1])
                 people_list[key] = person
 
-    json_string = "var result = {"
+    json_string = "var result = ["
     for v in people_list.values():
         json_string += v.to_json() + ','
 
-    json_string += "}"
+    json_string = json_string[:-1]
+    json_string += "]"
 
     print(json_string)
     # [{'type': k, 'items': v} for k, v in res.items()]
