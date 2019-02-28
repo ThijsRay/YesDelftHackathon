@@ -90,12 +90,12 @@ def parse_objects():
 
     json_string = "var result = {"
     for v in people_list.values():
-        json_string += v.to_json()
+        json_string += v.to_json() + ','
 
     json_string += "}"
 
     print(json_string)
-        # [{'type': k, 'items': v} for k, v in res.items()]
+    # [{'type': k, 'items': v} for k, v in res.items()]
     #     for email in group:
     #         if key not in people_list:
     #             people_list[key] = Person(key)
