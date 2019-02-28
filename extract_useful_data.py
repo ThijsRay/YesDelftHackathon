@@ -1,33 +1,67 @@
 import os
+import json
+import operator
+import pickle
+import json
 from mail import Mail
-import email
+from email.parser import BytesParser, Parser
+from email.policy import default
+from itertools import groupby
 
-# Import the email modules we'll need
-from email.message import EmailMessage
+def generate_objects():
+    mailList = []
+    for subdir, dirs, files in os.walk("maildir"):
+        for file in files:
+            filepath = subdir + os.sep + file
 
-# Open the plain text file whose name is in textfile for reading.
-with open(textfile) as fp:
-    # Create a text/plain message
-    msg = EmailMessage()
-    msg.set_content(fp.read())
+            with open(filepath, 'rb') as f:
+                header = BytesParser(policy=default).parse(f)
 
-# me == the sender's email address
-# you == the recipient's email address
-msg['Subject'] = 'The contents of %s' % textfile
-msg['From'] = me
-msg['To'] = you
+            # from to date cc bcc
+            if header['from'] is None or header['to'] is None:
+                continue
 
-mailList = list()
+            this_mail = Mail(header['from'], header['to'].split(', '), header['date'], header['cc'], header['bcc'])
+            # print(this_mail)
+            mailList.append(this_mail)
 
-for subdir, dirs, files in os.walk("maildir"):
-    for file in files:
-        filepath = subdir + os.sep + file
+    with open('mail_data.pkl', 'wb') as output:
+        for a_mail in mailList:
+            pickle.dump(a_mail, output, pickle.HIGHEST_PROTOCOL)
 
-        with open(filepath, encoding = "ISO-8859-1") as f:
-            msg = EmailMessage()
-            msg.set_content(f.read())
 
-        mailList.append()
+def pickled_items(filename):
+    """ Unpickle a file of pickled data. """
+    with open(filename, "rb") as f:
+        while True:
+            try:
+                yield pickle.load(f)
+            except EOFError:
+                break
 
-for mail in mailList:
-    mail.print_mail()
+
+def load_objects():
+    mailList = [m.to_kv_pair() for m in pickled_items("mail_data.pkl")]
+    mailList.sort(key=operator.itemgetter(0))
+    return mailList
+
+
+def parse_objects():
+    mailList = load_objects()
+
+    dictList = dict()
+
+    for key, group in groupby(mailList, lambda x: x[0]):
+        for x in group:
+            if key not in dictList:
+                dictList[key] = list()
+            for to in x[1]:
+                dictList[key].append(to)
+
+    with open('result.json', 'w') as fp:
+        json.dump(dictList, fp)
+
+if __name__ == "__main__":
+    # generate_objects()
+    parse_objects()
+
