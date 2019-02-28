@@ -11,7 +11,7 @@ class Mail:
         if self.bcc is not None:
             self.bcc = bcc.split(', ')
 
-        self.combinedTo = self.toAddr
+        self.combinedTo = set(self.toAddr)
         if self.cc is not None:
             self.combinedTo += self.cc
 
@@ -25,4 +25,4 @@ class Mail:
         return string.rstrip()
 
     def to_kv_pair(self):
-        return self.fromAddr, self.combinedTo
+        return self.fromAddr, list(map(lambda x: (x, self.date), self.combinedTo))
