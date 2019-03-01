@@ -24,22 +24,22 @@
     function parseData(data) {
       var map = new Map();
       for (var key in data) {
-        console.log(key);
-        if (!map.has(key)) {
-          map.set(key, 0);
+        var email = data[key].e;
+        if (!map.has(email)) {
+          map.set(email, 0);
         }
-        var mails = data[key];
-        var i;
-        for (i = 0; i < mails.length; i++) {
-          person = mails[i];
-          if (!map.has(person.name)) {
-            map.set(person.name, 0);
+        var mails = data[key].c;
+        for (var person in mails) {
+          // console.log(mails[person]);
+          if (!map.has(person)) {
+            map.set(person, 0);
           }
-          addWeight(map, key, person, mails.length);
+          dates = mails[person];
+          addWeight(map, key, person, dates.length);
           edges.add({
-            from: key,
+            from: email,
             to: person,
-            value: mails.length
+            value: dates.length
           });
         }
       }
@@ -94,11 +94,18 @@
           label: {
             enabled: true,
           }
+        },
+        color: {
+          highlight: {
+            background: 'red',
+            border: 'green'
+          },
         }
       },
       edges: {
         color: {
-          inherit: false
+          highlight: 'red',
+         inherit: false
         }
       },
       groups: {
