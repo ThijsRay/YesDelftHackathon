@@ -2,45 +2,83 @@
 <html>
 <head>
     <script type="text/javascript" src="js/vis.min.js"></script>
-    <script type="text/javascript" src = "data/edges.js"></script>
-    <script type="text/javascript" src = "data/connected_edges.js"></script>
-    <script type="text/javascript" src = "data/nodes.js"></script>
-    <link href="vis/vis.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src = "data/result.js"></script>
+    <link href="js/vis.min.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="../JSON/test.js"></script>
 
     <style type="text/css">
-        .wrapper {
-            width: 100%;
-            height: 100%
-        }
         #mynetwork {
-            width: 100%;
+            width: 1000px;
             height: 1000px;
             border: 1px solid lightgray;
         }
     </style>
-    <script src="../result.js"></script>
 </head>
 <body>
-<div class="wrapper">
-    <div id="mynetwork"></div>
-</div>
+<div id="mynetwork"></div>
 
 <script type="text/javascript">
     // create an array with nodes
 
     function getExtension(string) {
-        let siteName = s.match(/[@].*/g)[0];
+        var siteName = s.match(/[@].*/g)[0];
         return siteName.substring(1, siteName.length);
     }
 
-    function generateAroundNode(node) {
-        nodes =
-        connected_edges[node]
+    var nodes = new vis.DataSet();
+    var edges = new vis.DataSet();
+
+    function parseData(data) {
+      var map = new Map();
+      for (var key in data) {
+        if (!map.has(key)) {
+          map.set(key, 0);
+        }
+        var mails = data[key];
+        for (var person in mails) {
+          if (!map.has(person)) {
+            map.set(person, 0);
+          }
+          dates = mails[person];
+          addWeight(map, key, person, dates.length);
+          edges.add({
+            from: key,
+            to: person,
+            value: dates.length,
+            url: "timeline.html?ijt/page.aspx?&from="+key+"&to="+person
+          });
+        }
+      }
+      map.forEach(createNode);
     }
 
-    nodes = new vis.DataSet(nodes);
-    edges = new vis.DataSet(edges);
+    function createNode(value, key, map) {
+      nodes.add({
+        id: key,
+        label: key,
+        value: value
+      });
+    }
+
+    function addWeight(map, from, to, weight) {
+      map.set(from, map.get(from) + weight);
+      map.set(to, map.get(to) + weight);
+    }
+
+    var json = {
+      "johnmayer@shell.com": [
+        {
+          "name":  "jessica@student.tudelft.nl",
+          "dates": ["12-02-1988", "13-05-1998"]
+        },
+        {
+          "name": "winnerboy@hotmail.com",
+          "dates": ["12-04-1984", "27-04-2015", "15-01-2014"]
+        }
+      ]
+    }
+
+    parseData(result);
 
     // for (var k in json) {
     //   console.log(k);
@@ -59,7 +97,6 @@
       nodes: {
         shape: 'circle',
         scaling: {
-            max: 100,
           label: {
             enabled: true,
           }
@@ -72,11 +109,6 @@
         }
       },
       edges: {
-          smooth: false,
-          scaling: {
-              min: 1,
-              max: 6,
-          },
         color: {
           highlight: 'red',
          inherit: false
@@ -90,8 +122,7 @@
           avoidOverlap: 0.1,
           springLength:500,
           springConstant: 0.02
-        },
-        minVelocity: 0.5,
+        }
       },
         layout: {
           improvedLayout: false
@@ -99,14 +130,9 @@
     };
 
     // initialize your network!
-    // var network = new vis.Network(container, data, options);
-    var network = None
+    var network = new vis.Network(container, data, options);
 
-    network.on("selectNode", function(params) {
-
-    })
-
-    network.on("selectEdge", function(params) {
+    network.on("click", function(params) {
         if (params.nodes.length == 1) {
             var nodeId = params.nodes[0];
             if (nodes.get(nodeId).url != null) {
