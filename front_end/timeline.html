@@ -30,17 +30,12 @@ function getQueryVariable(variable)
     }
     return(false);
 }
-console.log(getQueryVariable("from"));
-console.log(getQueryVariable("to"));
-var email = getQueryVariable("from");
+// console.log(getQueryVariable("from"));
+// console.log(getQueryVariable("to"));
+var key = getQueryVariable("from");
 var person = getQueryVariable("to");
 
-var dates = result[email].c[person];
-console.log(dates);
-
-for (var date in dates) {
-    dates = dates[date];
-}
+var dates = result[key][person];
 console.log(dates);
 
 
@@ -66,8 +61,8 @@ var items = new vis.DataSet();
 var x = 0;
 for(var k in dates){
     var k1 = x + 1;
-    console.log(k1);
-    console.log(dates[x]);
+    // console.log(k1);
+    // console.log(dates[x]);
     items.add({id: k1, content: 'item ' + k1, start: dates[x]});
     x++;
 }
