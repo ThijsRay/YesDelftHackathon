@@ -11,7 +11,7 @@ class Mail:
         if self.bcc is not None:
             self.bcc = bcc.split(', ')
 
-        self.combinedTo = set(self.toAddr)
+        self.combinedTo = self.toAddr
         if self.cc is not None:
             self.combinedTo += self.cc
 
