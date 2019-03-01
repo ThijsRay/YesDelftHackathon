@@ -37,8 +37,7 @@ def generate_objects():
 def pickled_items(filename):
     """ Unpickle a file of pickled data. """
     with open(filename, "rb") as f:
-        # while True:
-        for i in range(40):
+        while True:
             try:
                 yield pickle.load(f)
             except EOFError:

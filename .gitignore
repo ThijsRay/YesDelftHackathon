@@ -1,4 +1,3 @@
 maildir
 venv
 .idea
-**/**.js
