@@ -39,6 +39,8 @@
     var edges = new vis.DataSet();
 
     function parseData(data) {
+      var x = 0;
+      var y = 0;
       var map = new Map();
       for (var key in data) {
         var email = data[key].e;
@@ -46,6 +48,7 @@
           map.set(email, 0);
         }
         var mails = data[key].c;
+        y = 0;
         for (var person in mails) {
           // console.log(mails[person]);
           if (!map.has(person)) {
@@ -56,9 +59,12 @@
           edges.add({
             from: email,
             to: person,
-            value: dates.length
+            value: dates.length,
+            url: "timeline.html?ijt/page.aspx?&from="+email+"&to="+person
           });
+          y++;
         }
+        x++;
       }
       map.forEach(createNode);
     }
@@ -134,7 +140,10 @@
           springLength:500,
           springConstant: 0.02
         }
-      }
+      },
+        layout: {
+          improvedLayout: false
+        }
     };
 
     // initialize your network!

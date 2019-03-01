@@ -13,6 +13,7 @@
 <script type="text/javascript" src="vis/vis.min.js"></script>
     <link href="vis/vis.min.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="../JSON/test.js"></script>
+    <script type="text/javascript" src = "data/result.js"></script>
     </head>
     <body>
     <div id="visualization"></div>
@@ -29,11 +30,14 @@ function getQueryVariable(variable)
     }
     return(false);
 }
+console.log(getQueryVariable("from"));
+console.log(getQueryVariable("to"));
+var email = getQueryVariable("from");
+var person = getQueryVariable("to");
 
-// console.log(getQueryVariable("to"));
-// console.log(getQueryVariable("from"));
+var dates = result[email].c[person];
+console.log(dates);
 
-var dates = test[0].c[0];
 for (var date in dates) {
     dates = dates[date];
 }
