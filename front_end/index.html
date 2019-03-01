@@ -2,22 +2,75 @@
 <html>
 <head>
     <script type="text/javascript" src="js/vis.min.js"></script>
+    <script type="text/javascript" src ="js/jquery.min.js"></script>
     <script type="text/javascript" src = "data/result.js"></script>
     <link href="js/vis.min.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="../JSON/test.js"></script>
 
     <style type="text/css">
+        body, html {
+            height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .wrapper {
+            height: auto;
+            min-height: 100%;
+        }
         #mynetwork {
-            width: 1000px;
-            height: 1000px;
+            width: 79%;
+            height: 900px;
+            float: left;
             border: 1px solid lightgray;
+        }
+        #search {
+            float: right;
+            width: 20%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-<div id="mynetwork"></div>
+<div class="wrapper">
+    <div id="mynetwork"></div>
+    <div id="search">
+        <form id="live-search" action="" class="styled" method="post">
+            <fieldset>
+                <input type="text" class="text-input" id="filter" placeholder="Search for email address..." value="" />
+                <span id="filter-count"></span>
+            </fieldset>
+        </form>
+
+        <nav>
+            <ul id="search_elements"></ul>
+        </nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#filter").keyup(function(){
+
+            // Retrieve the input field text and reset the count to zero
+            var filter = $(this).val()
+
+            // Loop through the comment list
+            $("nav ul li").each(function(){
+
+                // If the list item does not contain the text phrase fade it out
+                if ($(this).text().search(new RegExp(filter, "i")) < 0) {
+                    $(this).hide();
+
+                // Show the list item if the phrase matches and increase the count by 1
+                } else {
+                    $(this).show();
+                }
+            });
+        });
+    });
+</script>
 
 <script type="text/javascript">
+
+    let network;
+
     // create an array with nodes
 
     function getExtension(string) {
@@ -45,37 +98,41 @@
             from: key,
             to: person,
             value: dates.length,
-            url: "timeline.html?ijt/page.aspx?&from="+key+"&to="+person
+            url: "timeline.html?from="+key+"&to="+person
           });
         }
       }
       map.forEach(createNode);
     }
 
+    function validateEmail(email) {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
     function createNode(value, key, map) {
-      nodes.add({
-        id: key,
-        label: key,
-        value: value
-      });
+
+        let node = {
+            id: key,
+            label: key,
+            value: value
+        }
+        nodes.add(node);
+        // $("#search_elements").append("<li><a href='#' onclick='javascript:alert('" + key + "');network.setSelection({nodes: ['" + key + "']}, {unselectAll: false, highlightEdges: true})'>" + node.id + "</a></li>")
+        // $("#search_elements").append("<li><a href='#' onclick='console.log('" + key + "');'>" + node.id + "</a></li>")
+        if (validateEmail(node.id)) {
+            str = `<li><a href=\"javascript:selectNode('${node.id}')">${node.id}</a></li>`
+            $("#search_elements").append(str)
+        }
+    }
+
+    function selectNode(nodeId) {
+        network.setSelection({nodes: [nodeId]}, {unselectAll: true, highlightEdges: true})
     }
 
     function addWeight(map, from, to, weight) {
       map.set(from, map.get(from) + weight);
       map.set(to, map.get(to) + weight);
-    }
-
-    var json = {
-      "johnmayer@shell.com": [
-        {
-          "name":  "jessica@student.tudelft.nl",
-          "dates": ["12-02-1988", "13-05-1998"]
-        },
-        {
-          "name": "winnerboy@hotmail.com",
-          "dates": ["12-04-1984", "27-04-2015", "15-01-2014"]
-        }
-      ]
     }
 
     parseData(result);
@@ -109,6 +166,10 @@
         }
       },
       edges: {
+          scaling: {
+              min: 2,
+              max: 100,
+          },
         color: {
           highlight: 'red',
          inherit: false
@@ -130,7 +191,7 @@
     };
 
     // initialize your network!
-    var network = new vis.Network(container, data, options);
+    network = new vis.Network(container, data, options);
 
     network.on("click", function(params) {
         if (params.nodes.length == 1) {
