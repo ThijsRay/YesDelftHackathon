@@ -11,6 +11,7 @@ from itertools import groupby
 from collections import defaultdict
 from pprint import pprint
 
+
 def generate_objects():
     mailList = []
     for subdir, dirs, files in os.walk("maildir"):
@@ -87,31 +88,91 @@ def parse_objects():
                 for correspondence in mail_person[1]:
                     person.add_sent_mail(correspondence[0], correspondence[1])
                 people_list[key] = person
+    return people_list
 
-    json_string = "var result = ["
-    for v in people_list.values():
+
+def parse_to_graph():
+    people_list = parse_objects()
+
+    node_weights = {}
+
+    edges = []
+    nodes = []
+
+    for (addr, mails) in people_list.items():
+        if addr not in node_weights:
+            node_weights[addr] = 0
+            for person in mails.contacts:
+                if person not in node_weights:
+                    node_weights[person] = 0
+                weight = len(mails.contacts)
+                node_weights[addr] += weight
+                node_weights[person] += weight
+                edges.append({'from': addr, 'to': person, 'value': weight})
+            nodes.append({'id': addr, 'label': addr, 'value': node_weights[addr]})
+
+    with open("edges.js", 'w') as outfile:
+        outfile.write("var edges = " + json.dumps(edges))
+
+    with open("nodes.js", 'w') as outfile:
+        outfile.write("var nodes = " + json.dumps(nodes))
+
+    # function parseData(data) {
+    #   var map = new Map();
+    #   for (var key in data) {
+    #     var email = data[key].e;
+    #     if (!map.has(email)) {
+    #       map.set(email, 0);
+    #     }
+    #     var mails = data[key].c;
+    #     for (var person in mails) {
+    #       // console.log(mails[person]);
+    #       if (!map.has(person)) {
+    #         map.set(person, 0);
+    #       }
+    #       dates = mails[person];
+    #       addWeight(map, key, person, dates.length);
+    #       edges.add({
+    #         from: email,
+    #         to: person,
+    #         value: dates.length
+    #       });
+    #     }
+    #   }
+    #   map.forEach(createNode);
+    # }
+
+#
+# function
+# createNode(value, key, map)
+# {
+#     nodes.add({
+#         id: key,
+#         label: key,
+#         value: value
+#     });
+# }
+# function
+# addWeight(map,
+# from, to, weight) {
+#     map.set(
+# from, map.get(
+# from) + weight);
+# map.set(to, map.get(to) + weight);
+# }
+
+def generate_result_json():
+    json_string = "var result = {"
+    for v in parse_objects().values():
         json_string += v.to_json() + ','
-
     json_string = json_string[:-1]
-    json_string += "]"
-
+    json_string += "}"
     print(json_string)
-    # [{'type': k, 'items': v} for k, v in res.items()]
-    #     for email in group:
-    #         if key not in people_list:
-    #             people_list[key] = Person(key)
-    #         else:
-    #             people_list[key].add_sent_mail(email[0], email[1])
-    #
-    # for person in people_list.values():
-    #     print(person.to_json())
-
-    # with open('result.json', 'w') as fp:
-    #     json.dump(people_list, fp)
 
 
 if __name__ == "__main__":
     # generate_objects()
-    parse_objects()
+    # parse_objects()
+    parse_to_graph()
     # pprint(load_objects())
 

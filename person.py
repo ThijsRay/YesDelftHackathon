@@ -17,8 +17,7 @@ class Person:
 
     def to_json(self):
         json_dict = dict()
-        json_dict['e'] = self.email
-        json_dict['c'] = self.contacts
+        json_dict[self.email] = self.contacts
         json_dict = json.dumps(json_dict)
-        return json_dict
+        return json_dict[1:-1]
 
