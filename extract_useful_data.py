@@ -37,7 +37,8 @@ def generate_objects():
 def pickled_items(filename):
     """ Unpickle a file of pickled data. """
     with open(filename, "rb") as f:
-        while True:
+        # while True:
+        for i in range(40):
             try:
                 yield pickle.load(f)
             except EOFError:
@@ -91,6 +92,36 @@ def parse_objects():
     return people_list
 
 
+# def parse_to_simple_graph():
+#     people_list = parse_objects()
+#
+#     node_weights = {}
+#
+#     edges = {}
+#     nodes = []
+#
+#     for (addr, mails) in people_list.items():
+#         if addr not in node_weights:
+#             node_weights[addr] = 0
+#             for person in mails.contacts:
+#                 if person not in node_weights:
+#                     node_weights[person] = 0
+#                 weight = len(mails.contacts)
+#                 node_weights[addr] += weight
+#                 node_weights[person] += weight
+#                 if addr not in edges:
+#                     edges[addr] = [{'from': addr, 'to': person, 'value': weight, 'url': "timeline.html?from={}&to={}".format(addr, person)}]
+#                 else:
+#                     edges[addr].append({'from': addr, 'to': person, 'value': weight, 'url': "timeline.html?from={}&to={}".format(addr, person)})
+#             nodes[addr] = [{'id': addr, 'label': addr, 'value': node_weights[addr]}]
+#
+#     with open("front_end/data/connected_edges.js", 'w') as outfile:
+#         outfile.write("let connected_edges = " + json.dumps(edges))
+#
+#     with open("front_end/data/connected_nodes.js", 'w') as outfile:
+#         outfile.write("let connected_nodes= " + json.dumps(nodes))
+
+
 def parse_to_graph():
     people_list = parse_objects()
 
@@ -108,14 +139,15 @@ def parse_to_graph():
                 weight = len(mails.contacts)
                 node_weights[addr] += weight
                 node_weights[person] += weight
-                edges.append({'from': addr, 'to': person, 'value': weight})
-            nodes.append({'id': addr, 'label': addr, 'value': node_weights[addr]})
+                edges.append({'from': addr, 'to': person, 'value': weight, 'url': "timeline.html?from={}&to={}".format(addr, person)})
+            if "@enron" in addr and node_weights[addr] > 0:
+                nodes.append({'id': addr, 'label': addr, 'value': node_weights[addr]})
 
-    with open("edges.js", 'w') as outfile:
-        outfile.write("var edges = " + json.dumps(edges))
+    with open("front_end/data/edges.js", 'w') as outfile:
+        outfile.write("let edges = " + json.dumps(edges))
 
-    with open("nodes.js", 'w') as outfile:
-        outfile.write("var nodes = " + json.dumps(nodes))
+    with open("front_end/data/nodes.js", 'w') as outfile:
+        outfile.write("let nodes = " + json.dumps(nodes))
 
     # function parseData(data) {
     #   var map = new Map();
@@ -162,17 +194,21 @@ def parse_to_graph():
 # }
 
 def generate_result_json():
-    json_string = "var result = {"
+    json_string = "let result = {"
     for v in parse_objects().values():
         json_string += v.to_json() + ','
     json_string = json_string[:-1]
     json_string += "}"
-    print(json_string)
+
+    with open("front_end/data/result.js", 'w') as outfile:
+        outfile.write(json_string)
 
 
 if __name__ == "__main__":
     # generate_objects()
-    # parse_objects()
+    parse_objects()
     parse_to_graph()
+    # parse_to_simple_graph()
+    generate_result_json()
     # pprint(load_objects())
 
