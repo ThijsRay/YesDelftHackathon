@@ -24,20 +24,18 @@
     function parseData(data) {
       var map = new Map();
       for (var key in data) {
-        var email = data[key].e;
-        if (!map.has(email)) {
-          map.set(email, 0);
+        if (!map.has(key)) {
+          map.set(key, 0);
         }
-        var mails = data[key].c;
+        var mails = data[key];
         for (var person in mails) {
-          // console.log(mails[person]);
           if (!map.has(person)) {
             map.set(person, 0);
           }
           dates = mails[person];
           addWeight(map, key, person, dates.length);
           edges.add({
-            from: email,
+            from: key,
             to: person,
             value: dates.length
           });
@@ -90,11 +88,6 @@
     var options = {
       nodes: {
         shape: 'circle',
-        scaling: {
-          label: {
-            enabled: true,
-          }
-        },
         color: {
           highlight: {
             background: 'red',
@@ -117,6 +110,9 @@
           springLength:500,
           springConstant: 0.02
         }
+      },
+      layout: {
+        improvedLayout: false
       }
     };
 
