@@ -25,46 +25,29 @@
         return siteName.substring(1, siteName.length);
     }
 
-
-
-    var nodes = new vis.DataSet([
-        {id: 1, label: 'Node 1', color: 'red', title: test.name},
-        {id: 2, label: 'Node 2'},
-        {id: 3, label: 'Node 3', color: 'blue', title: 'James Dead <br/>PornHub client<br/>fat ass'},
-        {id: 4, label: 'Node 4'},
-        {id: 5, label: 'Node 5'}
-    ]);
-
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
 
     function parseData(data) {
-      var x = 0;
-      var y = 0;
       var map = new Map();
       for (var key in data) {
-        var email = data[key].e;
-        if (!map.has(email)) {
-          map.set(email, 0);
+        if (!map.has(key)) {
+          map.set(key, 0);
         }
-        var mails = data[key].c;
-        y = 0;
+        var mails = data[key];
         for (var person in mails) {
-          // console.log(mails[person]);
           if (!map.has(person)) {
             map.set(person, 0);
           }
           dates = mails[person];
           addWeight(map, key, person, dates.length);
           edges.add({
-            from: email,
+            from: key,
             to: person,
             value: dates.length,
             url: "timeline.html?ijt/page.aspx?&from="+email+"&to="+person
           });
-          y++;
         }
-        x++;
       }
       map.forEach(createNode);
     }
