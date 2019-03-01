@@ -3,6 +3,7 @@
 <head>
     <script type="text/javascript" src="vis/vis.min.js"></script>
     <link href="vis/vis.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="../JSON/test.js"></script>
 
     <style type="text/css">
         #mynetwork {
@@ -17,17 +18,25 @@
 
 <script type="text/javascript">
     // create an array with nodes
+
+    function getExtension(string) {
+        var siteName = s.match(/[@].*/g)[0];
+        return siteName.substring(1, siteName.length);
+    }
+
+
+
     var nodes = new vis.DataSet([
-        {id: 1, label: 'Node 1', color: 'red'},
+        {id: 1, label: 'Node 1', color: 'red', title: test.name},
         {id: 2, label: 'Node 2'},
-        {id: 3, label: 'Node 3'},
+        {id: 3, label: 'Node 3', color: 'blue', title: 'James Dead <br/>PornHub client<br/>fat ass'},
         {id: 4, label: 'Node 4'},
         {id: 5, label: 'Node 5'}
     ]);
 
     // create an array with edges
     var edges = new vis.DataSet([
-        {from: 1, to: 3},
+        {from: 1, to: 3, title: 'send 16 e-mails<br/>agressief man<br/>nurmomlol', url: "timeline.html?ijt/page.aspx?&from=1&to=3"},
         {from: 1, to: 2},
         {from: 2, to: 4},
         {from: 2, to: 5}
@@ -41,10 +50,39 @@
         nodes: nodes,
         edges: edges
     };
-    var options = {};
+    var options = {
+        autoResize: true,
+        height: '100%',
+        width: '100%',
+        locale: 'en',
+        // locales: locales,
+        clickToUse: false
+        // configure: {...},    // defined in the configure module.
+        // edges: {...},        // defined in the edges module.
+        // nodes: {...},        // defined in the nodes module.
+        // groups: {...},       // defined in the groups module.
+        // layout: {...},       // defined in the layout module.
+        // interaction: {...},  // defined in the interaction module.
+        // manipulation: {...}, // defined in the manipulation module.
+        // physics: {...},      // defined in the physics module.
+    };
 
     // initialize your network!
     var network = new vis.Network(container, data, options);
+
+    network.on("click", function(params) {
+        if (params.nodes.length == 1) {
+            var nodeId = params.nodes[0];
+            if (nodes.get(nodeId).url != null) {
+                window.open(nodes.get(nodeId).url, '_blank');
+            }
+        } else if (params.edges.length==1) {
+            var edgeId = params.edges[0];
+            if (edges.get(edgeId).url != null) {
+                window.open(edges.get(edgeId).url, '_blank');
+            }
+        }
+    });
 </script>
 </body>
 </html>
